@@ -1,6 +1,6 @@
 import { careLineProviderId } from "./careline";
 import { countryId } from "./country";
-import { gender, url } from "./general.type";
+import { gender, url } from "../utils/general.type";
 import { specialityId } from "./speciality";
 
 export type userId = string;

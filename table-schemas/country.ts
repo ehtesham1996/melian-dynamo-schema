@@ -1,4 +1,4 @@
-import { url } from "./general.type";
+import { url } from "../utils/general.type";
 
 export type countryId = string
 
