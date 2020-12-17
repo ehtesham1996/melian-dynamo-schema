@@ -1,14 +1,32 @@
 import { careLineProviderId } from "./careline";
 import { countryId } from "./country";
-import { gender, url } from "../utils/general.type";
+import { base64, gender, url } from "../utils/general.type";
 import { specialityId } from "./speciality";
+import { symptomName } from "./symptom-type";
+import { vitalTypeName } from "./vital-types";
+import { addictionId } from "./addictions";
+import { allergyId } from "./allergies";
+import { pathologyId } from "./pathology";
+import { Medicine, DosageForm } from "./medicine";
 
+
+/**
+ * @NOTE DATE variable refers to Javascript new Date().toISOString()
+ */
+
+
+export type carelineId = string;
 export type userId = string;
-export enum AccountType {
+export enum Type {
     DETAIL = 'detail',
     PROFESSIONAL = 'professional',
     PATIENT = 'patient',
-    NETWORK = 'network'
+    NETWORK = 'network#userId',  // userId is variable
+    VITAL_REPORT_DATE = 'patient#vitalReport_date', // date is variable
+    SYMPTOM_REPORT_DATE = 'patient#symptomReport_date', // date is varible
+    PRESCRIPTION_ENDDATE = 'patient#prescription_endDate', // endDate is variable
+    APPOINTMENT_DUEDATE = 'patient#appointment_dueDate',  // dueDate is variable
+    CARELINE_UUID = 'patient#careline_uuid' // uuid is variable
 }
 
 export enum NetworkStatus {
@@ -19,12 +37,12 @@ export interface User {
 
 
     id: userId;  // PK
-    type: AccountType // SK   /** @GSI for networks */
+    type: Type // SK  /** @GSI for networks */
 
-    // If AccountType === DETAIL
+    // If Type === DETAIL
     name: string;
     telephone: number;
-    country: countryId;  /** @GSI to obtain one country users */ 
+    country: countryId;  /** @GSI to obtain one country users */
     email: string;
     gender: gender;
     birthdate: Date;
@@ -35,14 +53,17 @@ export interface User {
     last_name: string;
     created_at: Date;
     updated_at: Date;
-    // (END) If AccountType === DETAIL
+    // (END) If Type === DETAIL
 
-    // If AccountType === PATIENT
+    // If Type === PATIENT
     blood_type: string;
     careline_provider: careLineProviderId;
-    // (END) If AccountType === PATIENT
+    addictions: [addictionId];
+    allergies: [allergyId];
+    pathologies: [pathologyId];
+    // (END) If Type === PATIENT
 
-    // If AccountType === PROFESSIONAL
+    // If Type === PROFESSIONAL
     credential_type: string
     credential: string
     working_places: [
@@ -55,26 +76,81 @@ export interface User {
         }
     ],
     specialities: [specialityId]
-    // (END) If AccountType === PROFESSIONAL
+    // (END) If Type === PROFESSIONAL
 
-    // If AccountType === network#userId
+    // If Type === network#userId
     /**
      * 
      * 
      * @usecase1 - If you have to get your own connection your query would be
      *      Suppose user1 = your id
-     *      Get where (@id == user1 and @AccountType BEGINS_WITH network# and @network_status == CONNECTED)
+     *      Get where (@id == user1 and @Type BEGINS_WITH network# and @network_status == CONNECTED)
      *                                  +
-     *      Get where (@AccountType == network#user1 and network_status == CONNECTED)
+     *      Get where (@Type == network#user1 and network_status == CONNECTED)
      * 
      * @usecase2 - if you want to get those user who have sent you invitation
      *      Suppose user1 = your id
-     *      Get where (@AccountType == network#user1 and @network_status == PENDING)
+     *      Get where (@Type == network#user1 and @network_status == PENDING)
      * 
      * @usecase3 - if you want to get those user whom you have sent invitations
      *      Suppose user1 = your id
-     *      Get where (@id == user1 and @AccountType BEGINS_WITH network# and @network_status == PENDING)
+     *      Get where (@id == user1 and @Type BEGINS_WITH network# and @network_status == PENDING)
      */
     network_status: NetworkStatus;
-    // (END) If AccountType === network#userId
+    // (END) If Type === network#userId
+
+
+    // If Type === VITAL_REPORT_DATE
+    vital_type: vitalTypeName
+    vital_date: Date
+    vital_type_field_values: [
+        {
+            name: string,
+            value: number
+        }
+    ]
+    // (END) If Type === VITAL_REPORT_DATE
+
+    // If Type === SYMPTOM_REPORT_DATE
+    symptom_name: symptomName
+    symptom_date: Date
+    symptom_note: string
+    symptom_image: base64
+    symptom_scale: number
+    // (END) If Type === SYMPTOM_REPORT_DATE
+
+    // If Type === PRESCRIPTION_ENDDATE
+    prescription_start_date: Date;
+    prescription_end_date: Date;
+    prescription_strength: string;
+    prescription_quantity: string;
+    prescription_notes: string;
+    prescription_careline_id?: carelineId  /** If any . Create GSI if needed */
+    prescription_medicine: Medicine & {
+        dosage_suggested: DosageForm
+    };
+    prescription_created_by: Date;
+    prescription_updated_by: Date;
+    prescription_intraday_frequeny: [Date];
+    prescription_frequency: string;
+    prescription_purpose: [string];
+    // (END) If Type === PRESCRIPTION_ENDDATE
+
+    // If Type === APPOINTMENT_DUEDATE
+    appointment_start_date: Date;
+    appointment_end_date : Date;
+    appointment_careline_id?: carelineId /** If any */
+    appointment_due_date : Date;
+    appointment_name : string;
+    appointment_notes : string;
+    // (END) If Type === APPOINTMENT_DUEDATE
+
+
+     // If Type === CARELINE_UUID
+     careline_id : carelineId;
+     careline_pathology_id: pathologyId;
+     updated_date : Date;
+     created_date : Date;
+     // (END) If Type === CARELINE_UUID
+
 }
