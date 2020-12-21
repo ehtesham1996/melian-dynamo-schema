@@ -1,11 +1,12 @@
 import { url } from "../utils/general.type";
 
-export type vitalTypeName = string;
+export type vitalTypeId = string;
 
-export interface viteType {
+export interface vitalType {
 
     /** @PK */
-    vital_type_name: vitalTypeName; /** @GSI with projected attribute of base vital fields*/
+    id: vitalTypeId,
+    vital_type_name: string; /** @GSI with projected attribute of base vital fields*/
     icon: url;
     locale: Object;
     vital_type_fields: [

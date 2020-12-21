@@ -1,9 +1,7 @@
 import { careLineProviderId } from "./careline";
 import { countryId } from "./country";
-import { base64, gender, url } from "../utils/general.type";
+import { gender, url } from "../utils/general.type";
 import { specialityId } from "./speciality";
-import { symptomName } from "./symptom-type";
-import { vitalTypeName } from "./vital-types";
 import { addictionId } from "./addictions";
 import { allergyId } from "./allergies";
 import { pathologyId } from "./pathology";
@@ -21,17 +19,9 @@ export enum Type {
     DETAIL = 'detail',
     PROFESSIONAL = 'professional',
     PATIENT = 'patient',
-    NETWORK = 'network#userId',  // userId is variable
-    VITAL_REPORT_DATE = 'patient#vitalReport_date', // date is variable
-    SYMPTOM_REPORT_DATE = 'patient#symptomReport_date', // date is varible
     PRESCRIPTION_ENDDATE = 'patient#prescription_endDate', // endDate is variable
     APPOINTMENT_DUEDATE = 'patient#appointment_dueDate',  // dueDate is variable
     CARELINE_UUID = 'patient#careline_uuid' // uuid is variable
-}
-
-export enum NetworkStatus {
-    CONNECTED = 'connected',
-    PENDING = 'pending'
 }
 export interface User {
 
@@ -77,47 +67,6 @@ export interface User {
     ],
     specialities: [specialityId]
     // (END) If Type === PROFESSIONAL
-
-    // If Type === network#userId
-    /**
-     * 
-     * 
-     * @usecase1 - If you have to get your own connection your query would be
-     *      Suppose user1 = your id
-     *      Get where (@id == user1 and @Type BEGINS_WITH network# and @network_status == CONNECTED)
-     *                                  +
-     *      Get where (@Type == network#user1 and network_status == CONNECTED)
-     * 
-     * @usecase2 - if you want to get those user who have sent you invitation
-     *      Suppose user1 = your id
-     *      Get where (@Type == network#user1 and @network_status == PENDING)
-     * 
-     * @usecase3 - if you want to get those user whom you have sent invitations
-     *      Suppose user1 = your id
-     *      Get where (@id == user1 and @Type BEGINS_WITH network# and @network_status == PENDING)
-     */
-    network_status: NetworkStatus;
-    // (END) If Type === network#userId
-
-
-    // If Type === VITAL_REPORT_DATE
-    vital_type: vitalTypeName
-    vital_date: Date
-    vital_type_field_values: [
-        {
-            name: string,
-            value: number
-        }
-    ]
-    // (END) If Type === VITAL_REPORT_DATE
-
-    // If Type === SYMPTOM_REPORT_DATE
-    symptom_name: symptomName
-    symptom_date: Date
-    symptom_note: string
-    symptom_image: base64
-    symptom_scale: number
-    // (END) If Type === SYMPTOM_REPORT_DATE
 
     // If Type === PRESCRIPTION_ENDDATE
     prescription_start_date: Date;
